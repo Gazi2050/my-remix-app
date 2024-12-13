@@ -67,3 +67,14 @@ export const users: User[] = [
         password: "jessicajones456"
     }
 ];
+
+export const addUser = (user: User) => {
+    //Look for an existing user
+    const existingUser = findUserByEmailPassword(user.email, user.password);
+    if (!existingUser) {
+        users.push(user)
+    }
+};
+export const findUser = (id: string) => { };
+export const findUserByEmailPassword = (email: string, password: string) => users.find((user) => user.email === email && user.password === password);;
+export const deleteUser = (id: string) => { };

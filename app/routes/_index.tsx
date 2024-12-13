@@ -1,5 +1,12 @@
 import type { MetaFunction } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { Form, useActionData } from "@remix-run/react";
+import { addUser, findUserByEmailPassword, User } from "users";
+import { v4 as uuidv4 } from "uuid"
+
+type ActinData = {
+  error?: string;
+  user?: User;
+};
 
 export const meta: MetaFunction = () => {
   return [
@@ -8,7 +15,30 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export const action = async ({ request }: { request: Request }) => {
+  const formData = await request.formData();
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  if (!email || !password) {
+    return Response.json({ error: "Email and pasword are required." }, { status: 400 })
+  }
+  const newUser = {
+    id: uuidv4(),
+    name,
+    email,
+    password,
+  };
+  const existingUser = findUserByEmailPassword(email, password)
+  const user = existingUser || newUser
+  if (!existingUser) {
+    addUser(user);
+  }
+  return Response.json({ user }, { status: 200 })
+};
+
 export default function Index() {
+  const actionData = useActionData()
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-200">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
